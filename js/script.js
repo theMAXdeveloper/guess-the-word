@@ -16,6 +16,7 @@ const playAgainButton = document.querySelector(".play-again");
 // Hidden "play again" button 
 const inputForm = document.querySelector(".guess-form");
 // form for inputing a guess
+const formLabel = document.querySelector(".guess-form label");
 
 let word = "magnolia";
 const guessedLettersArray = [];
@@ -51,19 +52,22 @@ guessButton.addEventListener("click", function (e) {
 	textInput.value = "";
 	const validatedLetter = validateInput(letterInput);
 	//console.log(validatedLetter);
-	
-	makeGuess(validatedLetter);
+	if (validatedLetter) {
+		makeGuess(letterInput);
+		// if statement checks to see if validateInput() returns a value; prevents makeGuess() from returning undefined value error for letter placeholder parameter 
+	};
+
 });
 
 
 const validateInput = function (letterInput) {
 	const acceptedLetter = /[a-zA-Z]/;
 	if (letterInput === "") {
-		guessMessage.innerText = "Please input one letter."
+		guessMessage.innerText = "Please input one letter.";
 	} else if (letterInput.length > 1) {
-		guessMessage.innerText = "Please input a SINGLE letter."
+		guessMessage.innerText = "Please input a SINGLE letter.";
 	} else if (!letterInput.match(acceptedLetter)) {
-		guessMessage.innerText = "That's not a letter, please try again..."
+		guessMessage.innerText = "That's not a letter, please try again...";
 	} else {
 		return letterInput;
 	}
@@ -73,7 +77,7 @@ const validateInput = function (letterInput) {
 const makeGuess = function (letter) {
 	const letterUppercase = letter.toUpperCase();
 	if (guessedLettersArray.includes(letterUppercase)) {
-		guessMessage.innerHTML = `You have already guessed the letter ${letterUppercase}, please try again`
+		guessMessage.innerHTML = `You have already guessed the letter ${letterUppercase}, please try again`;
 	} else {
 		guessedLettersArray.push(letterUppercase);
 		showGuessed();
@@ -109,32 +113,54 @@ const updateWord = function (guessedLettersArray) {
 const remainingGuessCount = function (letter) {
 	const upperWord = word.toUpperCase();
 	if (upperWord.includes(letter)) {
-		guessMessage.innerText = `Good guess! The word has the letter ${letter}`
+		guessMessage.innerText = `Good guess! The word has the letter ${letter}`;
 	} else {
-		guessMessage.innerText = `Sorry, this word has no ${letter}`
-		remainingGuesses -= 1
+		guessMessage.innerText = `Sorry, this word has no ${letter}`;
+		remainingGuesses -= 1;
 	};
 
 	if (remainingGuesses === 0) {
-		guessMessage.innerHTML = `Game over. The word was ${upperWord}.`
-		remaining.innerText = "You have no guesses left."
-		inputForm[0].disabled = true
-		inputForm[1].hidden = true
+		guessMessage.innerHTML = `Game over. The word was ${upperWord}.`;
+		startOver()
 	} else if (remainingGuesses === 1) {
 		remainingNumber.innerText = "1 guess";
 	} else if (remainingGuesses > 1) {
-		remainingNumber.innerText = `${remainingGuesses} guesses`
+		remainingNumber.innerText = `${remainingGuesses} guesses`;
 	};
 };
 
 const winMessage = function () {
 	if (word.toUpperCase() === wordInProgress.innerText) {
 		guessMessage.classList.add("win");
-		guessMessage.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`
-		inputForm[0].disabled = true
-		inputForm[1].hidden = true
+		guessMessage.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`;
+		startOver();
 	};
 };
+
+const startOver = function () {
+	remaining.hidden = true;
+	guessedLetters.hidden = true;
+	guessButton.hidden = true;
+	formLabel.hidden = true;
+	inputForm[0].hidden = true;
+	playAgainButton.classList.remove("hide");
+};
+
+const playAgain = playAgainButton.addEventListener("click", function () {
+	guessMessage.classList.remove("win");
+	guessMessage.innerHTML = "";
+	guessedLetters.innerHTML = "";
+	guessedLettersArray.splice(0);
+	remainingGuesses = 7;
+	remainingNumber.innerText = "7 guesses";
+	remaining.hidden = false;
+	playAgainButton.classList.add("hide");
+	guessButton.hidden = false;
+	guessedLetters.hidden = false;
+	formLabel.hidden = false;
+	inputForm[0].hidden = false;
+	getWord();
+}); 
 
 
 
